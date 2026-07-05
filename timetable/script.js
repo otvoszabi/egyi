@@ -26,7 +26,7 @@ window.addEventListener('load', () => {
     flatpickr(".custom-date", {
         locale: "hu",
         dateFormat: "Y-m-d",
-        allowInput: true, // Ezzel a beállítással lehet beírni is a dátumot
+        allowInput: true,
         disableMobile: "true" 
     });
 
@@ -472,10 +472,22 @@ function fetchUserProfile(token) {
 }
 
 function handleAuthClick() { if (tokenClient) tokenClient.requestAccessToken({ prompt: 'consent' }); }
+
 function handleLogoutClick() {
-    if (accessToken) {
-        google.accounts.oauth2.revokeToken(accessToken, () => { resetLogoutState(); showToast("Kijelentkeztél.", "warning"); });
-    } else resetLogoutState();
+    // 1. Megpróbáljuk visszavonni a Google-től a tokent a háttérben
+    if (accessToken && typeof google !== 'undefined') {
+        try {
+            google.accounts.oauth2.revokeToken(accessToken, () => {
+                console.log("Token visszavonva.");
+            });
+        } catch (e) {
+            console.error("Hiba a token visszavonásakor:", e);
+        }
+    }
+    
+    // 2. Mindenképp és azonnal frissítjük a felületet (töröljük a localStorage-t)
+    resetLogoutState();
+    showToast("Sikeresen kijelentkeztél.", "success");
 }
 
 function resetLogoutState() {
