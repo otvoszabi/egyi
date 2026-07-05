@@ -9,7 +9,7 @@ let tokenClient;
 let accessToken = null;
 let weekOffset = 0; 
 let globalSubjectsCache = {}; 
-let globalStructureCache = { modules: [], sessions: [] }; // ÚJ: Struktúra gyorsítótár
+let globalStructureCache = { modules: [], sessions: [] };
 let uniqueSubjectsForAutocomplete = [];
 let currentEditEvent = null; 
 let pendingScopeAction = null; 
@@ -22,10 +22,11 @@ window.addEventListener('load', () => {
     setupColorSync('editSubjectColor', 'editSubjectColorHex');
     setupColorSync('subjectColor', 'subjectColorHex');
 
-    // FLATPICKR INICIALIZÁLÁSA MINDEN DÁTUM MEZŐRE
+    // FLATPICKR INICIALIZÁLÁSA MINDEN DÁTUM MEZŐRE - Kézi gépelés engedélyezve
     flatpickr(".custom-date", {
         locale: "hu",
         dateFormat: "Y-m-d",
+        allowInput: true, // Ezzel a beállítással lehet beírni is a dátumot
         disableMobile: "true" 
     });
 
@@ -33,7 +34,6 @@ window.addEventListener('load', () => {
     document.getElementById('logoutBtn').addEventListener('click', handleLogoutClick);
     document.getElementById('submitBtn').addEventListener('click', uploadToGoogleCalendar);
     
-    // ESEMÉNYFIGYELŐ A DÁTUM AUTOMATIKUS KITÖLTÉSÉHEZ
     const dayOfWeekSelect = document.getElementById('dayOfWeek');
 
     dayOfWeekSelect.addEventListener('change', (e) => {
@@ -85,7 +85,6 @@ window.addEventListener('load', () => {
     document.getElementById('closeConfirmDeleteBtn').addEventListener('click', () => closeModal('confirmDeleteModal'));
     document.getElementById('cancelDeleteBtn').addEventListener('click', () => closeModal('confirmDeleteModal'));
     
-    // Törlés gomb véglegesítése
     document.getElementById('confirmDbDeleteBtn').onclick = async () => {
         if (subjectToDeleteFromDB) {
             const targetName = subjectToDeleteFromDB.name;
@@ -280,7 +279,6 @@ async function loadSubjectsFromDatabase() {
     renderSavedSubjectsListFromCache();
 }
 
-// ÚJ: Struktúra betöltése a Firebase-ből a cache-be
 async function loadStructureFromDatabase() {
     globalStructureCache = await getStructureFromDB();
 }
@@ -356,7 +354,6 @@ async function handleSaveColorToFirebase() {
 }
 
 function loadAndOpenStructureModal() {
-    // ÚJ: localStorage helyett a globalStructureCache-ből olvassuk ki
     const { modules, sessions } = globalStructureCache;
     
     if (modules && sessions) {
@@ -376,7 +373,6 @@ function loadAndOpenStructureModal() {
     openModal('structureModal');
 }
 
-// ÚJ: Aszinkron függvény lett, Firebase-be mentés
 async function saveStructure() {
     const structure = { modules: [], sessions: [] };
     for(let i=1; i<=4; i++) {
@@ -391,7 +387,7 @@ async function saveStructure() {
     const isSuccess = await saveStructureToDB(structure);
     
     if (isSuccess) {
-        globalStructureCache = structure; // Frissítjük a memóriát is
+        globalStructureCache = structure;
         showToast("Év struktúra sikeresen elmentve az adatbázisba!", "success");
         closeModal('structureModal');
         fetchWeeklyTimetable(); 
@@ -446,7 +442,6 @@ function updateUIForLoggedIn(picUrl) {
     
     weekOffset = 0; 
     
-    // ÚJ: Párhuzamosan betöltjük a tantárgyakat és a struktúrát a Firebase-ből
     Promise.all([
         loadSubjectsFromDatabase(),
         loadStructureFromDatabase()
@@ -527,7 +522,6 @@ async function uploadToGoogleCalendar() {
     }
     
     if (recType === 'module') {
-        // ÚJ: localStorage helyett a Firebase-ből jövő cache-ből olvassuk
         const { modules, sessions } = globalStructureCache;
         if (modules && modules.length > 0) {
             let foundEnd = null;
@@ -590,7 +584,6 @@ function updateWeekLabel(monday, sunday) {
     const dateStr = `${monday.toLocaleDateString('hu-HU', formatOpts)} - ${sunday.toLocaleDateString('hu-HU', formatOpts)}`;
     let labelText = dateStr;
     
-    // ÚJ: localStorage helyett a Firebase-ből jövő cache-ből olvassuk
     const { modules, sessions } = globalStructureCache;
 
     if (modules || sessions) {
