@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jelenlétek</title>
+    <link rel="stylesheet" href="pres_style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script type="module" src="app.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div class="header">
+            <div>
+                <h1>Jelenlét</h1>
+                <p>Kövesd a kurzusaid és gyakorlataid jelenlétét</p>
+            </div>
+            <button class="btn-new" onclick="openModal()">+ Új tantárgy</button>
+        </div>
+
+        <div class="main-modules" id="mainTabs">
+            <button class="main-tab active" onclick="switchMainModule(1)">1. MODUL</button>
+            <button class="main-tab" onclick="switchMainModule(2)">2. MODUL</button>
+            <button class="main-tab" onclick="switchMainModule(3)">3. MODUL</button>
+            <button class="main-tab" onclick="switchMainModule(4)">4. MODUL</button>
+        </div>
+
+        <div class="card-grid" id="module-content"></div>
+
+    </div>
+
+    <div id="addModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Új tantárgy</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label>Tantárgy neve</label>
+                <input type="text" id="subjName" placeholder="pl. Farmacologie" oninput="checkInput()">
+            </div>
+            <div class="form-group">
+                <label>Modul</label>
+                <div class="modal-modules" id="modalModBtnGroup">
+                    <button class="mod-btn active" onclick="pickModalModule(1, this)">1. modul</button>
+                    <button class="mod-btn" onclick="pickModalModule(2, this)">2. modul</button>
+                    <button class="mod-btn" onclick="pickModalModule(3, this)">3. modul</button>
+                    <button class="mod-btn" onclick="pickModalModule(4, this)">4. modul</button>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Előadások száma</label>
+                    <input type="number" id="lCount" value="12" min="1">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Gyakorlatok száma</label>
+                    <input type="number" id="pCount" value="12" min="1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Tantárgy színe (Kattints rá!)</label>
+                <input type="color" id="colorPicker" class="native-color-picker" value="#1d4ed8">
+            </div>
+            <button id="submitBtn" disabled onclick="saveSubject()">Hozzáadás</button>
+        </div>
+    </div>
+
+    <div id="detailModal" class="modal-overlay">
+        <div class="modal-content detail-modal-content" id="detailScrollBox">
+            
+            <div class="detail-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button class="back-btn" onclick="closeDetailModal()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    </button>
+                    <div>
+                        <h2 id="detailTitle">Tantárgy neve</h2>
+                        <p>Kattints egy hétre a jelenlét megváltoztatásához</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-edit" onclick="openEditModal()" title="Tantárgy módosítása">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <button class="btn-export" onclick="exportToExcel()" title="Jelenlét letöltése (Excel)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </button>
+                    <button class="btn-delete" onclick="promptDeleteSubject()" title="Tantárgy törlése">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="detail-section" id="lecSection">
+                <h3>Előadás</h3>
+                <div class="week-grid" id="detailLecGrid"></div>
+            </div>
+
+            <div class="detail-section" id="pracSection">
+                <h3>Gyakorlat</h3>
+                <div class="week-grid" id="detailPracGrid"></div>
+            </div>
+
+            <div class="detail-section">
+                <h3 style="text-transform: uppercase; font-size: 13px; color: var(--text-muted);">Rögzített jelenlétek</h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Hét</th><th>Típus</th><th>Státusz</th><th>Dátum</th><th>Időpont</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailHistoryBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmDeleteModal" class="modal-overlay" style="z-index: 1001;">
+        <div class="modal-content confirm-modal-content">
+            <div class="confirm-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <h2>Biztosan törlöd?</h2>
+            <p id="confirmDeleteText">Biztos törölni szeretnéd a(z) X. modulos Y tárgyat?</p>
+            <div class="confirm-actions">
+                <button class="btn-cancel-action" onclick="closeConfirmDeleteModal()">Nem</button>
+                <button class="btn-confirm-action" onclick="executeDeleteSubject()">Igen, törlés</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-overlay" style="z-index: 1002;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tantárgy módosítása</h2>
+                <button class="close-btn" onclick="closeEditModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label>Tantárgy neve</label>
+                <input type="text" id="editSubjName" placeholder="pl. Farmacologie">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>Előadások száma</label>
+                    <input type="number" id="editLCount" min="1">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Gyakorlatok száma</label>
+                    <input type="number" id="editPCount" min="1">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Tantárgy színe (Kattints rá!)</label>
+                <input type="color" id="editColorPicker" class="native-color-picker">
+            </div>
+            <button class="ready" onclick="promptSaveEditSubject()" style="width: 100%; padding: 12px; background: var(--btn-dark); color: white; border: none; border-radius: 6px; font-weight: bold; margin-top: 15px; cursor: pointer; transition: 0.3s;">Mentés</button>
+        </div>
+    </div>
+
+    <div id="confirmSaveModal" class="modal-overlay" style="z-index: 1003;">
+        <div class="modal-content confirm-modal-content">
+            <div class="confirm-icon success-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h2>Biztosan mented?</h2>
+            <p>Biztosan menteni szeretnéd a módosításokat?</p>
+            <div class="confirm-actions">
+                <button class="btn-cancel-action" onclick="closeConfirmSaveModal()">Nem</button>
+                <button class="btn-confirm-save-action" onclick="executeEditSave()">Igen, mentés</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

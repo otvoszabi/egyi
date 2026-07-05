@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Órarend a Google naptárba</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- FLATPICKR NAPTÁR BEHÚZÁSA -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/hu.js"></script>
+
+    <link rel="stylesheet" href="style_timetable.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<div class="main-layout">
+    <div class="header-container">
+        <h1>Heti órarend</h1>
+        
+        <div class="auth-container">
+            <button type="button" id="loginBtn" class="auth-btn google-btn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo">
+                <span>Bejelentkezés</span>
+            </button>
+            <button type="button" id="logoutBtn" class="auth-btn profile-btn" style="display: none;">
+                <img id="profileIcon" src="" alt="Profilkép">
+                <span>Kijelentkezés</span>
+            </button>
+        </div>
+        
+        <div class="header-actions">
+            <button id="openStructureModalBtn" class="action-btn secondary-btn" style="display: none;">Év struktúra</button>
+            <button id="openModalBtn" class="action-btn primary-btn" style="display: none;">+ Új óra</button>
+        </div>
+    </div>
+
+    <div id="scheduleContainer" class="schedule-container">
+        <div class="schedule-message" id="scheduleMessage">Kérlek, jelentkezz be a heti órarend betöltéséhez.</div>
+        <div class="week-header-label" id="weekHeaderLabel" style="display: none;"><h3 id="currentWeekLabel">Jelenlegi hét</h3></div>
+
+        <div class="timetable-grid" id="timetableGrid" style="display: none;">
+            <div class="day-column" id="day-1"><div class="day-header">Hétfő</div><div class="events-container"></div></div>
+            <div class="day-column" id="day-2"><div class="day-header">Kedd</div><div class="events-container"></div></div>
+            <div class="day-column" id="day-3"><div class="day-header">Szerda</div><div class="events-container"></div></div>
+            <div class="day-column" id="day-4"><div class="day-header">Csütörtök</div><div class="events-container"></div></div>
+            <div class="day-column" id="day-5"><div class="day-header">Péntek</div><div class="events-container"></div></div>
+        </div>
+
+        <div class="week-nav-container" id="weekNavContainer" style="display: none;">
+            <button id="prevWeekBtn" class="nav-btn">&larr; Előző</button>
+            <button id="currWeekBtn" class="nav-btn current-btn">Jelenlegi hét</button>
+            <button id="nextWeekBtn" class="nav-btn">Következő &rarr;</button>
+        </div>
+    </div>
+</div>
+
+<!-- Új óra felvitele Modál -->
+<div id="formModal" class="modal-overlay">
+    <div class="form-container relative-container">
+        <span class="close-btn" id="closeModalBtn">&times;</span>
+        <h2>Új óra felvitele</h2>
+        <form id="eventForm">
+            <div class="input-wrapper" style="flex-direction: row; align-items: flex-end; gap: 10px;">
+                <div style="flex: 2; position: relative;">
+                    <label for="subject">Tárgy neve</label>
+                    <input type="text" id="subject" placeholder="pl. Farmakológia" autocomplete="off" required>
+                    <!-- EGYEDI AUTOCOMPLETE DROPDOWN -->
+                    <div id="subjectDropdown" class="custom-dropdown custom-scrollbar"></div>
+                </div>
+                <div style="flex: 1;" class="color-picker-wrapper">
+                    <label>Óra színe</label>
+                    <div class="color-input-group">
+                        <input type="color" id="addSubjectColor" class="color-picker-visual" value="#3b82f6" required>
+                        <input type="text" id="addSubjectColorHex" class="color-picker-hex" value="#3B82F6" maxlength="7" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            
+            <button type="button" id="openColorModalBtn" class="action-btn secondary-btn" style="width: 100%; margin-top: -5px; margin-bottom: 5px;">🎨 Előre mentett színek kezelése</button>
+
+            <div class="input-wrapper">
+                <label for="location">Helyszín (nem kötelező)</label>
+                <input type="text" id="location" placeholder="pl. UMFST Târgu Mureș">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Típusa</label>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="type" value="Előadás" checked> Előadás</label>
+                        <label class="radio-label"><input type="radio" name="type" value="Gyakorlat"> Gyakorlat</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="dayOfWeek">Nap</label>
+                    <select id="dayOfWeek" required>
+                        <option value="1">Hétfő</option>
+                        <option value="2">Kedd</option>
+                        <option value="3">Szerda</option>
+                        <option value="4">Csütörtök</option>
+                        <option value="5">Péntek</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="input-wrapper" style="margin-top: -5px; margin-bottom: 5px;">
+                <label for="startDate">Első alkalom dátuma</label>
+                <input type="text" id="startDate" class="custom-date" placeholder="Válassz dátumot..." required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="recurrenceType">Ismétlődés</label>
+                    <select id="recurrenceType">
+                        <option value="module">Egész modulban</option>
+                        <option value="count">Megadott számú</option>
+                    </select>
+                </div>
+                <div class="form-group" id="recurrenceCountGroup" style="display: none;">
+                    <label for="recurrenceCount">Alkalmak száma</label>
+                    <input type="number" id="recurrenceCount" value="7" min="1" max="52">
+                </div>
+            </div>
+
+            <div class="time-row">
+                <div class="input-wrapper"><label for="startTime">Kezdés (pl. 8)</label><input type="text" id="startTime" class="time-input" placeholder="08:00" maxlength="5" required></div>
+                <div class="input-wrapper"><label for="endTime">Vége</label><input type="text" id="endTime" class="time-input" placeholder="10:00" maxlength="5" required></div>
+            </div>
+            <button type="button" id="submitBtn" class="action-btn primary-btn submit-btn">Óra mentése</button>
+        </form>
+    </div>
+</div>
+
+<!-- Esemény szerkesztése Modál -->
+<div id="editModal" class="modal-overlay">
+    <div class="form-container relative-container">
+        <span class="close-btn" id="closeEditModalBtn">&times;</span>
+        <h2>Óra szerkesztése</h2>
+        <form id="editEventForm">
+            <div class="input-wrapper" style="flex-direction: row; align-items: flex-end; gap: 10px;">
+                <div style="flex: 2;">
+                    <label for="editSubject">Tárgy neve</label>
+                    <input type="text" id="editSubject" required>
+                </div>
+                <div style="flex: 1;" class="color-picker-wrapper">
+                    <label>Szín</label>
+                    <div class="color-input-group">
+                        <input type="color" id="editSubjectColor" class="color-picker-visual" value="#3b82f6">
+                        <input type="text" id="editSubjectColorHex" class="color-picker-hex" value="#3B82F6" maxlength="7" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Típusa</label>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="editType" value="Előadás" id="editTypeLecture"> Előadás</label>
+                        <label class="radio-label"><input type="radio" name="editType" value="Gyakorlat" id="editTypePractice"> Gyakorlat</label>
+                    </div>
+                </div>
+            </div>
+            <div class="input-wrapper">
+                <label for="editLocation">Helyszín</label>
+                <input type="text" id="editLocation">
+            </div>
+            <div class="time-row">
+                <div class="input-wrapper"><label for="editDate">Dátum</label><input type="text" id="editDate" class="custom-date" required></div>
+            </div>
+            <div class="time-row">
+                <div class="input-wrapper"><label for="editStartTime">Kezdés (pl. 8)</label><input type="text" id="editStartTime" class="time-input" placeholder="08:00" maxlength="5" required></div>
+                <div class="input-wrapper"><label for="editEndTime">Vége</label><input type="text" id="editEndTime" class="time-input" placeholder="10:00" maxlength="5" required></div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="button" id="saveEditBtn" class="action-btn primary-btn submit-btn" style="margin-top: 0;">Mentés</button>
+                <button type="button" id="deleteEventBtn" class="action-btn danger-btn submit-btn" style="margin-top: 0;">Törlés</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Adatbázis mentett színek kezelése Modál -->
+<div id="colorModal" class="modal-overlay">
+    <div class="form-container relative-container" style="z-index: 1100;">
+        <span class="close-btn" id="closeColorModalBtn">&times;</span>
+        <h2>Tantárgyak és színek</h2>
+        <form id="colorForm">
+            <div class="input-wrapper">
+                <label for="newSubjectName">Tantárgy pontos neve</label>
+                <input type="text" id="newSubjectName" placeholder="pl. Mikrobiológia" required>
+            </div>
+            <div class="input-wrapper">
+                <label>Óra típusa</label>
+                <div class="radio-group">
+                    <label class="radio-label"><input type="radio" name="colorType" value="Előadás" checked> Előadás</label>
+                    <label class="radio-label"><input type="radio" name="colorType" value="Gyakorlat"> Gyakorlat</label>
+                </div>
+            </div>
+            <div class="input-wrapper color-picker-wrapper">
+                <label>Óra színe</label>
+                <div class="color-input-group" style="width: 100%;">
+                    <input type="color" id="subjectColor" class="color-picker-visual" value="#3b82f6" required>
+                    <input type="text" id="subjectColorHex" class="color-picker-hex" value="#3B82F6" maxlength="7" autocomplete="off">
+                </div>
+            </div>
+            <button type="button" id="saveColorBtn" class="action-btn primary-btn submit-btn">Mentés adatbázisba</button>
+        </form>
+
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 25px 0 15px 0;">
+        <h3 style="color: var(--text-primary); font-size: 15px; margin-top: 0; margin-bottom: 12px; font-weight: 600;">Mentett tantárgyak listája</h3>
+        <div id="savedSubjectsList" class="saved-subjects-container custom-scrollbar"></div>
+    </div>
+</div>
+
+<!-- Adatbázis törlés megerősítése Modál -->
+<div id="confirmDeleteModal" class="modal-overlay" style="z-index: 2000;">
+    <div class="form-container relative-container" style="max-width: 400px; text-align: center;">
+        <span class="close-btn" id="closeConfirmDeleteBtn">&times;</span>
+        <div style="color: var(--warning); margin-bottom: 15px; display: flex; justify-content: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        </div>
+        <h2>Biztosan törlöd?</h2>
+        <p id="confirmDeleteText" class="subtitle" style="margin-bottom: 24px; color: var(--text-secondary);"></p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <button type="button" id="cancelDeleteBtn" class="action-btn secondary-btn" style="flex: 1;">Mégse</button>
+            <button type="button" id="confirmDbDeleteBtn" class="action-btn danger-btn" style="flex: 1;">Igen, törlöm</button>
+        </div>
+    </div>
+</div>
+
+<!-- Dinamikus hatókör Modál -->
+<div id="updateScopeModal" class="modal-overlay">
+    <div class="form-container relative-container" style="max-width: 400px; text-align: center;">
+        <span class="close-btn" id="closeScopeModalBtn">&times;</span>
+        <h2 id="scopeModalTitle">Mentés hatóköre</h2>
+        <p id="scopeModalDesc" class="subtitle" style="margin-bottom: 20px;">Ez az esemény egy ismétlődő sorozat része. Mit szeretnél módosítani a Google naptárban?</p>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button type="button" id="scopeSingleBtn" class="action-btn primary-btn">Csak ezt az egyet</button>
+            <button type="button" id="scopeSeriesBtn" class="action-btn secondary-btn">A teljes sorozatot (ezutániakat)</button>
+        </div>
+    </div>
+</div>
+
+<!-- Év struktúra Modál -->
+<div id="structureModal" class="modal-overlay">
+    <div class="form-container relative-container" style="max-width: 600px;">
+        <span class="close-btn" id="closeStructureModalBtn">&times;</span>
+        <h2>Egyetemi év struktúra</h2>
+        <div class="structure-scroll custom-scrollbar">
+            <form id="structureForm">
+                <h4 class="section-title">Modulok (tanítási hetek)</h4>
+                <div class="form-row"><div class="form-group input-wrapper"><label>1. modul</label><input type="text" class="custom-date" id="mod1_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="mod1_end"></div></div>
+                <div class="form-row"><div class="form-group input-wrapper"><label>2. modul</label><input type="text" class="custom-date" id="mod2_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="mod2_end"></div></div>
+                <div class="form-row"><div class="form-group input-wrapper"><label>3. modul</label><input type="text" class="custom-date" id="mod3_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="mod3_end"></div></div>
+                <div class="form-row"><div class="form-group input-wrapper"><label>4. modul</label><input type="text" class="custom-date" id="mod4_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="mod4_end"></div></div>
+                <h4 class="section-title">Szessziók</h4>
+                <div class="form-row"><div class="form-group input-wrapper"><label>1. szesszió</label><input type="text" class="custom-date" id="sess1_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="sess1_end"></div></div>
+                <div class="form-row"><div class="form-group input-wrapper"><label>2. szesszió</label><input type="text" class="custom-date" id="sess2_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="sess2_end"></div></div>
+                <div class="form-row"><div class="form-group input-wrapper"><label>3. szesszió</label><input type="text" class="custom-date" id="sess3_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="sess3_end"></div></div>
+                <div class="form-row"><div class="form-group input-wrapper"><label>4. szesszió</label><input type="text" class="custom-date" id="sess4_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="sess4_end"></div></div>
+                <button type="button" id="saveStructureBtn" class="action-btn primary-btn submit-btn">Struktúra mentése</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>

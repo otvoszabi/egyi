@@ -1,0 +1,309 @@
+/* --- SÖTÉT & ELEGÁNS (Dark Mode Minimal) STÍLUS --- */
+:root {
+    --bg-base: #0f1115;
+    --bg-surface: #1a1d24;
+    --bg-surface-hover: #232730;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-primary: #3b82f6;
+    --accent-hover: #2563eb;
+    --border-color: #2e3340;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+}
+
+body {
+    background-color: var(--bg-base); color: var(--text-primary);
+    font-family: 'Inter', sans-serif; display: flex; justify-content: center;
+    align-items: flex-start; min-height: 100vh; margin: 0; padding: 40px 20px; box-sizing: border-box;
+}
+
+.main-layout { width: 100%; max-width: 1200px; }
+
+/* --- FEJLÉC --- */
+.header-container { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 30px; gap: 20px; }
+h1 { color: var(--text-primary); margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
+
+.header-actions { display: flex; gap: 12px; }
+
+.action-btn {
+    border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500; font-family: 'Inter', sans-serif;
+    cursor: pointer; transition: all 0.2s ease; font-size: 14px;
+}
+.primary-btn { background-color: var(--accent-primary); color: #ffffff; }
+.primary-btn:hover { background-color: var(--accent-hover); }
+.secondary-btn { background-color: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); }
+.secondary-btn:hover { background-color: var(--bg-surface-hover); color: var(--text-primary); border-color: var(--text-primary); }
+.danger-btn { background-color: var(--danger); color: #ffffff; }
+.danger-btn:hover { background-color: var(--danger-hover); }
+
+/* --- ÓRAREND KONTÉNER --- */
+.schedule-container {
+    background-color: var(--bg-surface); border: 1px solid var(--border-color);
+    border-radius: 12px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); min-height: 400px; display: flex; flex-direction: column;
+}
+
+.schedule-message { text-align: center; color: var(--text-secondary); font-size: 16px; padding: 50px 0; }
+
+.week-header-label { text-align: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+.week-header-label h3 { color: var(--text-primary); margin: 0; font-size: 18px; font-weight: 500; }
+
+.timetable-grid { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 15px; flex: 1; }
+.timetable-grid::-webkit-scrollbar { height: 6px; }
+.timetable-grid::-webkit-scrollbar-track { background: var(--bg-base); border-radius: 10px; }
+.timetable-grid::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+.day-column { flex: 1; min-width: 200px; background-color: var(--bg-base); border-radius: 10px; display: flex; flex-direction: column; border: 1px solid var(--border-color); }
+.day-header { background-color: var(--bg-surface); border-bottom: 1px solid var(--border-color); color: var(--text-primary); text-align: center; font-weight: 500; padding: 12px; border-radius: 10px 10px 0 0; font-size: 14px; }
+.events-container { padding: 12px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+
+/* --- ÜVEGHATÁSÚ ÓRAREND KÁRTYA --- */
+.event-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 14px; 
+    border-radius: 12px;
+    font-size: 13px; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; 
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.event-card:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25); 
+}
+
+.event-time { color: #ffffff !important; font-weight: 600; margin-bottom: 6px; font-size: 13px; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+.event-title { color: #ffffff !important; font-weight: 600; margin-bottom: 6px; font-size: 14px; line-height: 1.4; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+.event-location { color: rgba(255, 255, 255, 0.85) !important; font-size: 12px; }
+
+/* --- ALSÓ NAVIGÁCIÓ --- */
+.week-nav-container { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 20px; border-top: 1px solid var(--border-color); flex-wrap: wrap; gap: 12px; }
+.nav-btn { background-color: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; flex: 1; text-align: center; max-width: 200px; font-size: 14px; }
+.nav-btn:hover { color: var(--text-primary); border-color: var(--text-primary); }
+.current-btn { background-color: var(--border-color); color: var(--text-primary); }
+.current-btn:hover { background-color: var(--text-secondary); color: var(--bg-base); border-color: var(--text-secondary); }
+
+/* --- MODAL ÉS ŰRLAPOK --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.relative-container { position: relative; }
+.close-btn { position: absolute; top: 20px; right: 24px; font-size: 24px; color: var(--text-secondary); cursor: pointer; line-height: 1; transition: color 0.2s; }
+.close-btn:hover { color: var(--danger); }
+
+.subtitle { text-align: center; color: var(--text-secondary); font-size: 14px; margin-top: -15px; margin-bottom: 24px; }
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+.structure-scroll { max-height: 65vh; overflow-y: auto; padding-right: 15px; }
+.section-title { color: var(--text-primary); font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-top: 20px; margin-bottom: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.form-container { background-color: var(--bg-surface); padding: 32px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 15px 40px rgba(0,0,0,0.6); width: 100%; max-width: 500px; }
+.form-container h2 { text-align: center; color: var(--text-primary); margin-top: 0; margin-bottom: 24px; font-size: 20px; font-weight: 600; }
+
+form { display: flex; flex-direction: column; gap: 16px; }
+.input-wrapper { display: flex; flex-direction: column; gap: 6px; }
+label { font-weight: 500; color: var(--text-secondary); font-size: 13px; }
+
+input[type="text"]:not(.color-picker-hex), input[type="number"], input[type="time"], input[type="date"], select {
+    width: 100%; padding: 12px; background-color: var(--bg-base); border: 1px solid var(--border-color);
+    color: var(--text-primary); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px;
+    box-sizing: border-box; transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+input:not(.color-picker-hex):not(.color-picker-visual):focus, select:focus { 
+    outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); 
+}
+::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
+
+/* --- ÚJ PROFIBB SZÍNVÁLASZTÓ + HEX INPUT --- */
+.color-input-group {
+    display: flex; align-items: center; gap: 6px; background-color: var(--bg-base);
+    border: 1px solid var(--border-color); border-radius: 8px; padding: 4px 10px 4px 4px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; box-sizing: border-box; height: 44px;
+}
+.color-input-group:focus-within {
+    border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+input[type="color"].color-picker-visual {
+    -webkit-appearance: none; border: none; width: 34px; height: 34px; border-radius: 6px;
+    cursor: pointer; padding: 0; background: transparent; flex-shrink: 0;
+}
+input[type="color"].color-picker-visual::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="color"].color-picker-visual::-webkit-color-swatch {
+    border: none; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+}
+input[type="text"].color-picker-hex {
+    border: none; background: transparent; padding: 0; width: 100%;
+    color: var(--text-primary); font-family: 'Inter', monospace; font-size: 13px;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-left: 2px;
+}
+input[type="text"].color-picker-hex:focus { outline: none; box-shadow: none; }
+
+.form-row, .time-row { display: flex; gap: 16px; justify-content: space-between; }
+.form-group { flex: 1; }
+.radio-group { display: flex; gap: 16px; padding-top: 5px; }
+.radio-label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-primary); font-size: 14px; }
+input[type="radio"] { accent-color: var(--accent-primary); }
+
+.submit-btn { width: 100%; padding: 14px; font-size: 15px; margin-top: 10px; flex: 1; }
+.btn-group { display: flex; gap: 12px; margin-top: 10px; }
+
+/* --- EGYEDI AUTOCOMPLETE & MENTETT LISTA --- */
+.custom-dropdown {
+    position: absolute; top: 100%; left: 0; width: 100%; background: var(--bg-surface);
+    border: 1px solid var(--border-color); border-radius: 8px; margin-top: 4px;
+    max-height: 200px; overflow-y: auto; z-index: 2000; display: none;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.custom-dropdown.show { display: block; }
+.dropdown-item {
+    padding: 10px 12px; cursor: pointer; color: var(--text-primary); font-size: 14px;
+    border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;
+}
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:hover { background-color: var(--bg-surface-hover); }
+.color-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(255,255,255,0.1); }
+
+.saved-subjects-container { max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 5px; }
+.saved-subject-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: 8px; }
+.saved-subject-info { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text-primary); }
+
+.delete-subject-btn {
+    background: transparent; border: none; color: var(--danger); 
+    cursor: pointer; padding: 6px; border-radius: 6px; 
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease;
+}
+.delete-subject-btn:hover { 
+    background-color: rgba(239, 68, 68, 0.15); color: var(--danger-hover); transform: scale(1.1); 
+}
+
+/* JAVÍTÁS: A törlés ikon nem "nyeli el" a kattintást a gomb elől */
+.delete-subject-btn svg {
+    pointer-events: none;
+}
+
+/* --- AUTH GOMBOK --- */
+.auth-container { display: flex; gap: 12px; }
+.auth-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--border-color); border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; }
+.auth-btn:hover { background-color: var(--bg-surface-hover); }
+.google-btn { background-color: #ffffff; color: #1f2937; border-color: #ffffff; }
+.google-btn:hover { background-color: #f3f4f6; }
+.profile-btn { background-color: var(--bg-base); color: var(--text-primary); }
+.auth-btn img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+
+/* --- ELEGÁNS TOAST (ÉRTESÍTÉS) STÍLUSOK --- */
+.toast {
+    min-width: 320px; max-width: 90%; background-color: rgba(26, 29, 36, 0.95);
+    backdrop-filter: blur(8px); border: 1px solid var(--border-color); border-radius: 12px;
+    padding: 16px; position: fixed; z-index: 9999; left: 50%; top: -100px;
+    transform: translateX(-50%); box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    display: flex; align-items: center; gap: 16px; opacity: 0; pointer-events: none;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+.toast.show { opacity: 1; top: 30px; pointer-events: auto; }
+.toast-icon { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; }
+.toast-icon svg { width: 24px; height: 24px; }
+.toast-content { display: flex; flex-direction: column; gap: 4px; }
+.toast-title { color: var(--text-primary); font-weight: 600; font-size: 15px; }
+.toast-message { color: var(--text-secondary); font-size: 13px; line-height: 1.4; }
+
+@media (max-width: 768px) {
+    .timetable-grid { flex-direction: column; }
+    .day-column { min-width: 100%; }
+    .week-nav-container { justify-content: center; }
+    .nav-btn { max-width: 100%; }
+    .header-actions { width: 100%; display: flex; justify-content: space-between; }
+    .form-row { flex-direction: column; gap: 12px; }
+    .btn-group { flex-direction: column; gap: 10px; }
+}
+/* --- EGYEDI FLATPICKR NAPTÁR STÍLUS (A kép alapján) --- */
+.flatpickr-calendar {
+    background: #262a33 !important; 
+    border: none !important;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    font-family: 'Inter', sans-serif !important;
+    width: auto; 
+}
+
+/* Hónap és év (Arany/Sárga) */
+.flatpickr-month {
+    color: #e8d672 !important;
+    fill: #e8d672 !important;
+    height: 40px !important;
+    margin-bottom: 10px;
+}
+.flatpickr-current-month {
+    font-size: 110% !important;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month .numInputWrapper {
+    color: #e8d672 !important;
+    font-weight: 600 !important;
+}
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+    background: transparent !important;
+}
+
+/* A hét napjai (Mo, Tu, We...) - Halványszürke */
+span.flatpickr-weekday {
+    color: #a0a5ab !important;
+    font-weight: 400 !important;
+    font-size: 13px !important;
+}
+
+/* A napok (1, 2, 3...) - Fehér */
+.flatpickr-day {
+    color: #ffffff !important;
+    border-radius: 6px !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+.flatpickr-day:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Kiválasztott nap */
+.flatpickr-day.selected, 
+.flatpickr-day.startRange, 
+.flatpickr-day.endRange, 
+.flatpickr-day.selected.inRange, 
+.flatpickr-day.startRange.inRange, 
+.flatpickr-day.endRange.inRange, 
+.flatpickr-day.selected:focus, 
+.flatpickr-day.startRange:focus, 
+.flatpickr-day.endRange:focus, 
+.flatpickr-day.selected:hover, 
+.flatpickr-day.startRange:hover, 
+.flatpickr-day.endRange:hover, 
+.flatpickr-day.selected.prevMonthDay, 
+.flatpickr-day.startRange.prevMonthDay, 
+.flatpickr-day.endRange.prevMonthDay, 
+.flatpickr-day.selected.nextMonthDay, 
+.flatpickr-day.startRange.nextMonthDay, 
+.flatpickr-day.endRange.nextMonthDay {
+    background: #e8d672 !important;
+    color: #262a33 !important;
+    border-color: #e8d672 !important;
+    font-weight: bold !important;
+}
+
+/* Másik hónap napjai - Sötétebb szürke */
+.flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay {
+    color: #4a525d !important;
+}
+
+/* Nyilak színe */
+.flatpickr-prev-month svg, .flatpickr-next-month svg {
+    fill: #a0a5ab !important;
+}
+.flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg {
+    fill: #e8d672 !important;
+}
