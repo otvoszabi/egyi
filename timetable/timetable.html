@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- FLATPICKR NAPTÁR BEHÚZÁSA -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/hu.js"></script>
@@ -61,7 +60,6 @@
     </div>
 </div>
 
-<!-- Új óra felvitele Modál -->
 <div id="formModal" class="modal-overlay">
     <div class="form-container relative-container">
         <span class="close-btn" id="closeModalBtn">&times;</span>
@@ -71,7 +69,6 @@
                 <div style="flex: 2; position: relative;">
                     <label for="subject">Tárgy neve</label>
                     <input type="text" id="subject" placeholder="pl. Farmakológia" autocomplete="off" required>
-                    <!-- EGYEDI AUTOCOMPLETE DROPDOWN -->
                     <div id="subjectDropdown" class="custom-dropdown custom-scrollbar"></div>
                 </div>
                 <div style="flex: 1;" class="color-picker-wrapper">
@@ -138,7 +135,6 @@
     </div>
 </div>
 
-<!-- Esemény szerkesztése Modál -->
 <div id="editModal" class="modal-overlay">
     <div class="form-container relative-container">
         <span class="close-btn" id="closeEditModalBtn">&times;</span>
@@ -186,7 +182,6 @@
     </div>
 </div>
 
-<!-- Adatbázis mentett színek kezelése Modál -->
 <div id="colorModal" class="modal-overlay">
     <div class="form-container relative-container" style="z-index: 1100;">
         <span class="close-btn" id="closeColorModalBtn">&times;</span>
@@ -219,7 +214,6 @@
     </div>
 </div>
 
-<!-- Adatbázis törlés megerősítése Modál -->
 <div id="confirmDeleteModal" class="modal-overlay" style="z-index: 2000;">
     <div class="form-container relative-container" style="max-width: 400px; text-align: center;">
         <span class="close-btn" id="closeConfirmDeleteBtn">&times;</span>
@@ -239,7 +233,6 @@
     </div>
 </div>
 
-<!-- Dinamikus hatókör Modál -->
 <div id="updateScopeModal" class="modal-overlay">
     <div class="form-container relative-container" style="max-width: 400px; text-align: center;">
         <span class="close-btn" id="closeScopeModalBtn">&times;</span>
@@ -252,7 +245,6 @@
     </div>
 </div>
 
-<!-- Év struktúra Modál -->
 <div id="structureModal" class="modal-overlay">
     <div class="form-container relative-container" style="max-width: 600px;">
         <span class="close-btn" id="closeStructureModalBtn">&times;</span>
@@ -264,11 +256,19 @@
                 <div class="form-row"><div class="form-group input-wrapper"><label>2. modul</label><input type="text" class="custom-date" id="mod2_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="mod2_end"></div></div>
                 <div class="form-row"><div class="form-group input-wrapper"><label>3. modul</label><input type="text" class="custom-date" id="mod3_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="mod3_end"></div></div>
                 <div class="form-row"><div class="form-group input-wrapper"><label>4. modul</label><input type="text" class="custom-date" id="mod4_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="mod4_end"></div></div>
+                
+                <h4 class="section-title">Vakációk / Szünetek</h4>
+                <div class="form-row"><div class="form-group input-wrapper"><label>1. szünet</label><input type="text" class="custom-date" id="vac1_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="vac1_end"></div></div>
+                <div class="form-row"><div class="form-group input-wrapper"><label>2. szünet</label><input type="text" class="custom-date" id="vac2_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="vac2_end"></div></div>
+                <div class="form-row"><div class="form-group input-wrapper"><label>3. szünet</label><input type="text" class="custom-date" id="vac3_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="vac3_end"></div></div>
+                <div class="form-row"><div class="form-group input-wrapper"><label>4. szünet</label><input type="text" class="custom-date" id="vac4_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="vac4_end"></div></div>
+                
                 <h4 class="section-title">Szessziók</h4>
                 <div class="form-row"><div class="form-group input-wrapper"><label>1. szesszió</label><input type="text" class="custom-date" id="sess1_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="sess1_end"></div></div>
                 <div class="form-row"><div class="form-group input-wrapper"><label>2. szesszió</label><input type="text" class="custom-date" id="sess2_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="sess2_end"></div></div>
                 <div class="form-row"><div class="form-group input-wrapper"><label>3. szesszió</label><input type="text" class="custom-date" id="sess3_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="sess3_end"></div></div>
                 <div class="form-row"><div class="form-group input-wrapper"><label>4. szesszió</label><input type="text" class="custom-date" id="sess4_start"></div><div class="form-group input-wrapper"><label>Vége</label><input type="text" class="custom-date" id="sess4_end"></div></div>
+                
                 <button type="button" id="saveStructureBtn" class="action-btn primary-btn submit-btn">Struktúra mentése</button>
             </form>
         </div>

@@ -3,12 +3,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "IDE_MASOLD_BE_A_KULCSOT_A_KEPROL",
-    authDomain: "egyi-18050.firebaseapp.com",
-    projectId: "egyi-18050",
-    storageBucket: "egyi-18050.firebasestorage.app",
-    messagingSenderId: "237004207210",
-    appId: "1:237004207210:web:00f4165b81c89033510613"
+  apiKey: "AIzaSyBjofFZckWumoJR0oubhM7Xh7Era1lF8QU",
+  authDomain: "egyi-18050.firebaseapp.com",
+  databaseURL: "https://egyi-18050-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "egyi-18050",
+  storageBucket: "egyi-18050.firebasestorage.app",
+  messagingSenderId: "237004207210",
+  appId: "1:237004207210:web:00f4165b81c89033510613",
+  measurementId: "G-GH0CWZ7LDL"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -57,8 +59,6 @@ export async function getSubjects() {
     return subjects; 
 }
 
-// --- ÚJ FÜGGVÉNYEK AZ ÉV STRUKTÚRÁJÁHOZ ---
-
 export async function saveStructureToDB(structureData) {
     try {
         await setDoc(doc(db, "settings", "university_structure"), structureData);
@@ -78,5 +78,5 @@ export async function getStructureFromDB() {
     } catch (e) {
         console.error("Hiba a struktúra betöltésekor: ", e);
     }
-    return { modules: [], sessions: [] }; // Alapértelmezett üres struktúra, ha még nincs mentve
+    return { modules: [], sessions: [], vacations: [] }; // Alapértelmezett üres struktúra, vakációkkal kibővítve
 }

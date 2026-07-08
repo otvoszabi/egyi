@@ -9,7 +9,7 @@ let tokenClient;
 let accessToken = null;
 let weekOffset = 0; 
 let globalSubjectsCache = {}; 
-let globalStructureCache = { modules: [], sessions: [] };
+let globalStructureCache = { modules: [], sessions: [], vacations: [] };
 let uniqueSubjectsForAutocomplete = [];
 let currentEditEvent = null; 
 let pendingScopeAction = null; 
@@ -22,7 +22,6 @@ window.addEventListener('load', () => {
     setupColorSync('editSubjectColor', 'editSubjectColorHex');
     setupColorSync('subjectColor', 'subjectColorHex');
 
-    // FLATPICKR INICIALIZÁLÁSA MINDEN DÁTUM MEZŐRE - Kézi gépelés engedélyezve
     flatpickr(".custom-date", {
         locale: "hu",
         dateFormat: "Y-m-d",
@@ -280,7 +279,10 @@ async function loadSubjectsFromDatabase() {
 }
 
 async function loadStructureFromDatabase() {
-    globalStructureCache = await getStructureFromDB();
+    const data = await getStructureFromDB();
+    if (data) {
+        globalStructureCache = data;
+    }
 }
 
 function renderSavedSubjectsListFromCache() {
@@ -354,7 +356,7 @@ async function handleSaveColorToFirebase() {
 }
 
 function loadAndOpenStructureModal() {
-    const { modules, sessions } = globalStructureCache;
+    const { modules, sessions, vacations } = globalStructureCache;
     
     if (modules && sessions) {
         modules.forEach(m => {
@@ -370,18 +372,32 @@ function loadAndOpenStructureModal() {
             if (endInput && s.end && endInput._flatpickr) endInput._flatpickr.setDate(s.end);
         });
     }
+    
+    if (vacations) {
+        vacations.forEach(v => {
+            const startInput = document.getElementById(`vac${v.id}_start`);
+            const endInput = document.getElementById(`vac${v.id}_end`);
+            if (startInput && v.start && startInput._flatpickr) startInput._flatpickr.setDate(v.start);
+            if (endInput && v.end && endInput._flatpickr) endInput._flatpickr.setDate(v.end);
+        });
+    }
     openModal('structureModal');
 }
 
 async function saveStructure() {
-    const structure = { modules: [], sessions: [] };
+    const structure = { modules: [], sessions: [], vacations: [] };
     for(let i=1; i<=4; i++) {
         const mStart = document.getElementById(`mod${i}_start`).value;
         const mEnd = document.getElementById(`mod${i}_end`).value;
         if (mStart || mEnd) structure.modules.push({ id: i, start: mStart, end: mEnd });
+        
         const sStart = document.getElementById(`sess${i}_start`).value;
         const sEnd = document.getElementById(`sess${i}_end`).value;
         if (sStart || sEnd) structure.sessions.push({ id: i, start: sStart, end: sEnd });
+        
+        const vStart = document.getElementById(`vac${i}_start`)?.value;
+        const vEnd = document.getElementById(`vac${i}_end`)?.value;
+        if (vStart || vEnd) structure.vacations.push({ id: i, start: vStart, end: vEnd });
     }
     
     const isSuccess = await saveStructureToDB(structure);
@@ -474,7 +490,6 @@ function fetchUserProfile(token) {
 function handleAuthClick() { if (tokenClient) tokenClient.requestAccessToken({ prompt: 'consent' }); }
 
 function handleLogoutClick() {
-    // 1. Megpróbáljuk visszavonni a Google-től a tokent a háttérben
     if (accessToken && typeof google !== 'undefined') {
         try {
             google.accounts.oauth2.revokeToken(accessToken, () => {
@@ -485,7 +500,6 @@ function handleLogoutClick() {
         }
     }
     
-    // 2. Mindenképp és azonnal frissítjük a felületet (töröljük a localStorage-t)
     resetLogoutState();
     showToast("Sikeresen kijelentkeztél.", "success");
 }
@@ -590,40 +604,101 @@ async function uploadToGoogleCalendar() {
     }).catch(err => showToast(err.message, "error"));
 }
 
+function isDateInRanges(date, ranges) {
+    if (!ranges) return false;
+    for (let r of ranges) {
+        if (r.start && r.end) {
+            let rStart = new Date(r.start); rStart.setHours(0,0,0,0);
+            let rEnd = new Date(r.end); rEnd.setHours(23,59,59,999);
+            if (date >= rStart && date <= rEnd) return true;
+        }
+    }
+    return false;
+}
+
 function updateWeekLabel(monday, sunday) {
     const label = document.getElementById('currentWeekLabel');
     const formatOpts = { month: 'short', day: 'numeric' };
     const dateStr = `${monday.toLocaleDateString('hu-HU', formatOpts)} - ${sunday.toLocaleDateString('hu-HU', formatOpts)}`;
     let labelText = dateStr;
     
-    const { modules, sessions } = globalStructureCache;
+    const { modules, sessions, vacations } = globalStructureCache;
+    
+    const midWeek = new Date(monday);
+    midWeek.setDate(midWeek.getDate() + 3);
+
+    if (isDateInRanges(midWeek, vacations)) {
+        label.innerText = `Vakáció / szünet (${dateStr})`;
+        return;
+    }
 
     if (modules || sessions) {
         let found = false;
+        
         if (modules) {
             for (let m of modules) {
                 if (m.start && m.end) {
                     let mStart = new Date(m.start); mStart.setHours(0, 0, 0, 0);
                     let mEnd = new Date(m.end); mEnd.setHours(23, 59, 59, 999);
+                    
                     if (monday >= mStart && monday <= mEnd) {
-                        let weekNum = Math.floor(Math.round((monday.getTime() - mStart.getTime()) / (1000 * 60 * 60 * 24)) / 7) + 1;
+                        let mStartMonday = new Date(mStart);
+                        let dayOfWeek = mStartMonday.getDay();
+                        let diff = mStartMonday.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                        mStartMonday.setDate(diff);
+
+                        let weekNum = 0;
+                        let iterMonday = new Date(mStartMonday);
+                        
+                        while (iterMonday <= monday) {
+                            let iterMid = new Date(iterMonday);
+                            iterMid.setDate(iterMid.getDate() + 3); 
+                            
+                            if (!isDateInRanges(iterMid, vacations)) {
+                                weekNum++;
+                            }
+                            iterMonday.setDate(iterMonday.getDate() + 7);
+                        }
+                        
+                        if (weekNum === 0) weekNum = 1;
                         labelText = `${m.id}. modul - ${weekNum}. hét (${dateStr})`; found = true; break;
                     }
                 }
             }
         }
+        
         if (!found && sessions) {
             for (let s of sessions) {
                 if (s.start && s.end) {
                     let sStart = new Date(s.start); sStart.setHours(0, 0, 0, 0);
                     let sEnd = new Date(s.end); sEnd.setHours(23, 59, 59, 999);
+                    
                     if (monday >= sStart && monday <= sEnd) {
-                        let weekNum = Math.floor(Math.round((monday.getTime() - sStart.getTime()) / (1000 * 60 * 60 * 24)) / 7) + 1;
+                        let sStartMonday = new Date(sStart);
+                        let dayOfWeek = sStartMonday.getDay();
+                        let diff = sStartMonday.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                        sStartMonday.setDate(diff);
+
+                        let weekNum = 0;
+                        let iterMonday = new Date(sStartMonday);
+                        
+                        while (iterMonday <= monday) {
+                            let iterMid = new Date(iterMonday);
+                            iterMid.setDate(iterMid.getDate() + 3);
+                            
+                            if (!isDateInRanges(iterMid, vacations)) {
+                                weekNum++;
+                            }
+                            iterMonday.setDate(iterMonday.getDate() + 7);
+                        }
+                        
+                        if (weekNum === 0) weekNum = 1;
                         labelText = `${s.id}. szesszió - ${weekNum}. hét (${dateStr})`; found = true; break;
                     }
                 }
             }
         }
+        
         if (!found && ((modules && modules.length > 0) || (sessions && sessions.length > 0))) {
             labelText = `Vakáció / szünet (${dateStr})`;
         }
