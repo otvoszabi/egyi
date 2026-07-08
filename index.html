@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Központi Hub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500&display=swap');
 
@@ -26,32 +27,59 @@
             width: 100%;
             display: flex;
             justify-content: center;
-            padding: 2rem;
+            padding: 3rem 2rem;
             box-sizing: border-box;
         }
 
-        .card-grid {
+        /* A teljes elrendezést összefogó konténer */
+        .layout-wrapper {
             display: flex;
-            flex-direction: column; /* Egy oszlopba rendezés */
+            flex-direction: column;
             align-items: center;
-            gap: 1.2rem;
+            gap: 2.5rem;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* Letisztult főcím stílusa */
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin: 0 0 1rem 0;
+            color: #f1f3f4;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        /* Felső sor: 3 nagy kártya */
+        .top-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
             width: 100%;
         }
 
-        /* Szélesebb, oszlopos kártyák */
+        /* Alsó rész: a többi kártya */
+        .bottom-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.2rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* Közös kártya stílusok */
         .card {
             background: #1e1f22;
             border: 1px solid #333538;
             border-radius: 20px;
-            padding: 1.2rem 2rem;
             text-decoration: none;
             color: #e3e3e3;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
-            gap: 20px;
-            width: 100%;
-            max-width: 350px; /* A kártyák maximális szélessége */
             box-sizing: border-box;
         }
 
@@ -62,26 +90,82 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .icon {
-            font-size: 1.5rem;
+        /* Kép alapú logók formázása */
+        .icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Felső, kiemelt kártyák stílusa */
+        .card.large {
+            padding: 2.2rem 2rem;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .card.large .icon {
+            font-size: 2.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 30px; /* Fix szélesség az ikonoknak, hogy a szöveg szépen egy vonalban maradjon */
+            width: 40px;
+            height: 40px;
         }
 
-        .card h2 {
-            font-size: 1.1rem;
+        .card.large h2 {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        /* Alsó kártyák stílusa */
+        .card.medium {
+            padding: 1.5rem 2rem;
+            gap: 20px;
+            width: 300px;
+            justify-content: flex-start;
+        }
+
+        .card.medium .icon {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+        }
+
+        .card.medium h2 {
+            font-size: 1.2rem;
             font-weight: 400;
             margin: 0;
             letter-spacing: 0.5px;
         }
 
-        /* Reszponzív dizájn telefonokra */
-        @media (max-width: 400px) {
-            .card {
+        /* Reszponzív dizájn telefonokra és tabletekre */
+        @media (max-width: 950px) {
+            .top-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .top-row {
+                grid-template-columns: 1fr;
+            }
+            .card.medium {
+                width: 100%;
                 max-width: 100%;
-                padding: 1rem 1.5rem;
+                justify-content: center;
+            }
+            .card.large {
+                justify-content: flex-start;
+                padding: 1.8rem;
             }
         }
     </style>
@@ -89,41 +173,67 @@
 <body>
 
     <div class="container">
-        <div class="card-grid">
-            <a href="presentations/pres.html" class="card">
-                <span class="icon">✅</span>
-                <h2>Jelenlétek</h2>
-            </a>
+        <div class="layout-wrapper">
+            
+            <header>
+                <h1>Hub</h1>
+            </header>
+            
+            <div class="top-row">
+                <a href="https://drive.google.com/drive/u/0/folders/1tBa0dpio8K0IZI8FMz_psUheAzWeXCe9" class="card large" target="_blank">
+                    <span class="icon">
+                        <img src="https://ssl.gstatic.com/docs/doclist/images/drive_favicon_2026_32dp.png" alt="Google Drive Logó">
+                    </span>
+                    <h2>Google Drive</h2>
+                </a>
 
-            <a href="timetable/timetable.html" class="card">
-                <span class="icon">📅</span>
-                <h2>Órarend</h2>
-            </a>
+                <a href="timetable/timetable.html" class="card large" target="_blank">
+                    <span class="icon">📅</span>
+                    <h2>Órarend</h2>
+                </a>
 
-            <a href="https://portal-academic.umfst.ro/login" class="card" target="_blank">
-                <span class="icon">🎓</span>
-                <h2>Jegyek</h2>
-            </a>
+                <a href="presentations/pres.html" class="card large" target="_blank">
+                    <span class="icon">✅</span>
+                    <h2>Jelenlétek</h2>
+                </a>
+            </div>
 
-            <a href="https://osmosis.org" class="card" target="_blank">
-                <span class="icon">🧠</span>
-                <h2>Osmosis</h2>
-            </a>
+            <div class="bottom-row">
+                <a href="https://portal-academic.umfst.ro/login" class="card medium" target="_blank">
+                    <span class="icon">🎓</span>
+                    <h2>Jegyek</h2>
+                </a>
 
-            <a href="https://umfst-garzi.web.app/login" class="card" target="_blank">
-                <span class="icon">➕</span>
-                <h2>Vigilia</h2>
-            </a>
+                <a href="https://osmosis.org" class="card medium" target="_blank">
+                    <span class="icon">
+                        <img src="https://www.osmosis.org/wp-content/uploads/sites/18/2026/01/cropped-favicon-1.png?w=192" alt="Osmosis Logó">
+                    </span>
+                    <h2>Osmosis</h2>
+                </a>
 
-            <a href="https://fizioms.ro" class="card" target="_blank">
-                <span class="icon">🧬</span>
-                <h2>Fizio</h2>
-            </a>
+                <a href="https://umfst-garzi.web.app/login" class="card medium" target="_blank">
+                    <span class="icon">
+                        <img src="https://umfst-garzi.web.app/vite.svg" alt="Vigilia Logó">
+                    </span>
+                    <h2>Vigilia</h2>
+                </a>
 
-            <a href="https://outlook.office.com/mail/" class="card" target="_blank">
-                <span class="icon">✉️</span>
-                <h2>Email</h2>
-            </a>
+                <a href="https://fizioms.ro" class="card medium" target="_blank">
+                    <span class="icon">🧬</span>
+                    <h2>Fizio</h2>
+                </a>
+
+                <a href="https://apw.umfst.ro/SlideCenter/Login" class="card medium" target="_blank">
+                    <span class="icon">🔬</span>
+                    <h2>Morfo</h2>
+                </a>
+
+                <a href="https://outlook.office.com/mail/" class="card medium" target="_blank">
+                    <span class="icon">✉️</span>
+                    <h2>Email</h2>
+                </a>
+            </div>
+
         </div>
     </div>
 
