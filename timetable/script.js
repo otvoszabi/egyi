@@ -1,5 +1,6 @@
 // --- script.js ---
 import { saveSubjectColor, getSubjects, deleteSubjectColor, saveStructureToDB, getStructureFromDB } from './firebase-db.js';
+import { generatePdfTimetable } from './pdf_generate.js'; // JAVÍTÁS: Importáltuk a PDF generálót
 
 const CLIENT_ID = '182966635302-e0p20hcja1ob75p5g2emuekn8cqrjt9i.apps.googleusercontent.com';
 const CALENDAR_ID = 'fcc56ae6437498853ec0a2289886d3376e5ce7e1a79542528d288172c4d1804b@group.calendar.google.com';
@@ -14,6 +15,7 @@ let uniqueSubjectsForAutocomplete = [];
 let currentEditEvent = null; 
 let pendingScopeAction = null; 
 let subjectToDeleteFromDB = null; 
+let currentWeekEvents = []; // PDF kigenerálásához eltároljuk a heti eseményeket
 
 window.addEventListener('load', () => {
     initInitializeGoogleAuth();
@@ -59,6 +61,11 @@ window.addEventListener('load', () => {
     document.getElementById('openStructureModalBtn').addEventListener('click', loadAndOpenStructureModal);
     document.getElementById('closeStructureModalBtn').addEventListener('click', () => closeModal('structureModal'));
     document.getElementById('saveStructureBtn').addEventListener('click', saveStructure);
+    
+    // JAVÍTÁS: Átadjuk az eseményeket, a színeket és a toast függvényt is!
+    document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+        generatePdfTimetable(currentWeekEvents, globalSubjectsCache, showToast);
+    });
 
     document.getElementById('openColorModalBtn').addEventListener('click', () => {
         updateColorGroup('subjectColor', 'subjectColorHex', '#3b82f6');
@@ -449,6 +456,7 @@ function updateUIForLoggedIn(picUrl) {
     document.getElementById('logoutBtn').style.display = 'inline-flex';
     document.getElementById('openModalBtn').style.display = 'inline-block';
     document.getElementById('openStructureModalBtn').style.display = 'inline-block';
+    document.getElementById('downloadPdfBtn').style.display = 'inline-block'; 
     
     if (picUrl) document.getElementById('profileIcon').src = picUrl;
     document.getElementById('scheduleMessage').style.display = 'none';
@@ -508,6 +516,7 @@ function resetLogoutState() {
     accessToken = null; localStorage.removeItem('gcal_token'); localStorage.removeItem('gcal_token_expiry'); localStorage.removeItem('gcal_profile_pic');
     document.getElementById('loginBtn').style.display = 'inline-flex'; document.getElementById('logoutBtn').style.display = 'none';
     document.getElementById('openModalBtn').style.display = 'none'; document.getElementById('openStructureModalBtn').style.display = 'none';
+    document.getElementById('downloadPdfBtn').style.display = 'none';
     document.getElementById('scheduleMessage').style.display = 'block'; document.getElementById('weekHeaderLabel').style.display = 'none';
     document.getElementById('timetableGrid').style.display = 'none'; document.getElementById('weekNavContainer').style.display = 'none';
 }
@@ -721,7 +730,10 @@ function fetchWeeklyTimetable() {
     .then(res => {
         if (res.status === 401) { resetLogoutState(); throw new Error("Lejárt a munkamenet!"); }
         return res.json();
-    }).then(data => renderTimetable(data.items || [])).catch(err => console.error(err));
+    }).then(data => {
+        currentWeekEvents = data.items || [];
+        renderTimetable(currentWeekEvents);
+    }).catch(err => console.error(err));
 }
 
 function renderTimetable(events) {

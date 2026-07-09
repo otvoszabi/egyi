@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/hu.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="style_timetable.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -37,6 +38,7 @@
         <div class="header-actions">
             <button id="openStructureModalBtn" class="action-btn secondary-btn" style="display: none;">Év struktúra</button>
             <button id="openModalBtn" class="action-btn primary-btn" style="display: none;">+ Új óra</button>
+            <button id="downloadPdfBtn" class="action-btn secondary-btn" style="display: none; border-color: var(--success); color: var(--success);">📥 PDF Letöltése</button>
         </div>
     </div>
 
